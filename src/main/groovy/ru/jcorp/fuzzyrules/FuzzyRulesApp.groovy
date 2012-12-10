@@ -25,6 +25,9 @@ import java.awt.Image
 import javax.swing.ImageIcon
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
+import ru.jcorp.fuzzyrules.gui.LoginWindow
+import ru.jcorp.fuzzyrules.gui.ApplicationMode
+import javax.swing.JOptionPane
 
 /**
  * @author artamonov
@@ -59,7 +62,26 @@ class FuzzyRulesApp {
                     return
                 }
 
-                mainWindow = new MainWindow()
+                LoginWindow loginWindow = new LoginWindow()
+                loginWindow.visible = true
+
+                ApplicationMode mode = null
+
+                while (loginWindow.isActivated() && mode == null) {
+                    if ('expert'.equals(loginWindow.user) && 'expert'.equals(loginWindow.password))
+                        mode = ApplicationMode.EXPERT
+                    else if ('user'.equals(loginWindow.user) && 'user'.equals(loginWindow.password))
+                        mode = ApplicationMode.USER
+                    else {
+                        JOptionPane.showMessageDialog(loginWindow, instance.getMessage('application.loginError'))
+                        loginWindow.visible = true
+                    }
+                }
+
+                if (!loginWindow.isActivated())
+                    System.exit(0);
+
+                mainWindow = new MainWindow(mode)
                 mainWindow.locationByPlatform = true
                 mainWindow.visible = true
             }

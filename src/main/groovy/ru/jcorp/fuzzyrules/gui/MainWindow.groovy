@@ -19,13 +19,9 @@ package ru.jcorp.fuzzyrules.gui
 
 import ru.jcorp.fuzzyrules.FuzzyRulesApp
 import ru.jcorp.fuzzyrules.model.RuleSet
-import ru.jcorp.fuzzyrules.util.DslSupport
 
-import javax.swing.JFileChooser
 import javax.swing.JFrame
-import javax.swing.JOptionPane
 import javax.swing.JTabbedPane
-import javax.swing.filechooser.FileNameExtensionFilter
 
 /**
  * @author artamonov
@@ -38,14 +34,22 @@ class MainWindow extends JFrame {
 //    private Map<Long, Executor> executorMap = new WeakHashMap<Long, Executor>()
 
     private RuleSet ruleSet
+    private ApplicationMode mode
 
-    MainWindow() {
+    MainWindow(ApplicationMode mode) {
         this.app = FuzzyRulesApp.instance
+        this.mode = mode
 
         this.size = [640, 480]
         this.minimumSize = [480, 320]
         this.defaultCloseOperation = EXIT_ON_CLOSE
         this.title = app.getMessage('application.title')
+
+        if (mode == ApplicationMode.EXPERT)
+            this.title += ' [' + app.getMessage('application.expert') + ']'
+        else
+            this.title += ' [' + app.getMessage('application.consultation') + ']'
+
         this.iconImage = app.getResourceImage('application.png')
 
         buildMenu()
@@ -57,13 +61,15 @@ class MainWindow extends JFrame {
     def buildMenu() {
         def menuBar = app.guiBuilder.menuBar() {
             menu(text: app.getMessage('menu.file')) {
+                if (this.mode == ApplicationMode.EXPERT) {
+                    menuItem(text: app.getMessage('menu.file.rules'), icon: app.getResourceIcon('menu/wand-hat.png'),
+                            actionPerformed: {
+                                editRules()
+                            })
+                }
                 menuItem(text: app.getMessage('menu.file.new'), icon: app.getResourceIcon('menu/lightning.png'),
                         actionPerformed: {
                             newConsultation()
-                        })
-                menuItem(text: app.getMessage('menu.file.loadRules'), icon: app.getResourceIcon('menu/open.png'),
-                        actionPerformed: {
-                            selectRules()
                         })
                 separator()
                 menuItem(text: app.getMessage('menu.file.exit'), icon: app.getResourceIcon('menu/exit.png'),
@@ -178,18 +184,22 @@ class MainWindow extends JFrame {
 //        tabbedPane.selectedComponent = consultationPanel
     }
 
-    def selectRules() {
-        JFileChooser fileChooser = new JFileChooser()
-        fileChooser.fileFilter = new FileNameExtensionFilter(app.getMessage('edit.ruleFiles'), 'groovy')
-        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            FileInputStream fs = new FileInputStream(fileChooser.selectedFile)
-            try {
-                RuleSet newRuleSet = RuleSet.build DslSupport.loadClosureFromStream(fs)
-                ruleSet = newRuleSet
-                JOptionPane.showMessageDialog(this, app.getMessage('edit.successLoad'), app.getMessage('edit.success'), JOptionPane.INFORMATION_MESSAGE)
-            } catch (Exception ignored) {
-                JOptionPane.showMessageDialog(this, app.getMessage('edit.rulesError'), app.getMessage('edit.error'), JOptionPane.ERROR_MESSAGE)
-            }
-        }
+    def editRules() {
+
     }
+
+//    def selectRules() {
+//        JFileChooser fileChooser = new JFileChooser()
+//        fileChooser.fileFilter = new FileNameExtensionFilter(app.getMessage('edit.ruleFiles'), 'groovy')
+//        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+//            FileInputStream fs = new FileInputStream(fileChooser.selectedFile)
+//            try {
+//                RuleSet newRuleSet = RuleSet.build DslSupport.loadClosureFromStream(fs)
+//                ruleSet = newRuleSet
+//                JOptionPane.showMessageDialog(this, app.getMessage('edit.successLoad'), app.getMessage('edit.success'), JOptionPane.INFORMATION_MESSAGE)
+//            } catch (Exception ignored) {
+//                JOptionPane.showMessageDialog(this, app.getMessage('edit.rulesError'), app.getMessage('edit.error'), JOptionPane.ERROR_MESSAGE)
+//            }
+//        }
+//    }
 }
