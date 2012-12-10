@@ -73,7 +73,10 @@ class FuzzyRulesApp {
                     else if ('user'.equals(loginWindow.user) && 'user'.equals(loginWindow.password))
                         mode = ApplicationMode.USER
                     else {
-                        JOptionPane.showMessageDialog(loginWindow, instance.getMessage('application.loginError'))
+                        JOptionPane.showMessageDialog(loginWindow,
+                                instance.getMessage('application.loginError'),
+                                instance.getMessage('application.error'),
+                                JOptionPane.WARNING_MESSAGE)
                         loginWindow.visible = true
                     }
                 }
