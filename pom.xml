@@ -21,7 +21,7 @@
 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.jcorp</groupId>
-    <artifactId>fuzzyrules</artifactId>
+    <artifactId>fuzzy-rules</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Fuzzy rules expert system</name>
     <packaging>jar</packaging>
