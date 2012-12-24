@@ -79,7 +79,7 @@ class ResultObject extends GroovyObjectSupport {
                 for (FuzzyString fs : o.values) {
                     FuzzyBoolean ba = algebra.and(activation, new FuzzyBoolean(value: true, factor: fs.factor))
                     if (ba.isActive())
-                        used.add(fs.value + ':' + df.format(ba.factor * 100))
+                        used.add(fs.value + ' (' + df.format(ba.factor * 100) + ')')
                 }
 
                 b.append(StringUtils.join(used, ', '))

@@ -4,6 +4,7 @@ import ru.jcorp.fuzzyrules.FuzzyRulesApp
 import ru.jcorp.fuzzyrules.production.impl.ResultObject
 
 import javax.swing.*
+import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
 import java.awt.*
 import java.text.DecimalFormat
@@ -23,13 +24,14 @@ class ResultWindow extends JDialog {
 
         this.title = app.getMessage('application.title')
         this.iconImage = app.getResourceImage('application.png')
-        this.modal = true
+        this.modal = false
         this.locationRelativeTo = null
         this.resizable = false
         this.defaultCloseOperation = HIDE_ON_CLOSE
 
         JPanel contentPane = new JPanel()
         contentPane.setLayout(new GridLayout(-1, 1))
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5))
         setContentPane(contentPane)
     }
 
