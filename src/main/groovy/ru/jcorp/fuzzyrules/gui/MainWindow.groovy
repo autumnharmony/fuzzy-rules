@@ -67,7 +67,7 @@ class MainWindow extends JFrame {
         this.app = FuzzyRulesApp.instance
         this.mode = mode
 
-        this.size = [640, 480]
+        this.size = [700, 480]
         this.minimumSize = [480, 320]
         this.defaultCloseOperation = EXIT_ON_CLOSE
         this.title = app.getMessage('application.title')

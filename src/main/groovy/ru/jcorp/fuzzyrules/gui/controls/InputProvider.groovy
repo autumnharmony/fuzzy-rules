@@ -18,6 +18,8 @@
 package ru.jcorp.fuzzyrules.gui.controls
 
 import ru.jcorp.fuzzyrules.FuzzyRulesApp
+import ru.jcorp.fuzzyrules.gui.ResultWindow
+import ru.jcorp.fuzzyrules.production.impl.ResultObject
 
 import java.awt.Dimension
 import java.awt.EventQueue
@@ -53,7 +55,13 @@ class InputProvider {
         EventQueue.invokeAndWait(new Runnable() {
             @Override
             void run() {
-                dialogPane.add(new JLabel(FuzzyRulesApp.instance.getMessage(messageCode)))
+                def label = new JLabel(FuzzyRulesApp.instance.getMessage(messageCode))
+                label.setSize(300, 30)
+                label.setPreferredSize(new Dimension(300, 30))
+                label.setMaximumSize(new Dimension(300, 30))
+                label.setMinimumSize(new Dimension(300, 30))
+
+                dialogPane.add(label)
                 dialogPane.add(inputControl.component)
 
                 nextButton.setAction(new AbstractAction(nextButton.text) {
@@ -88,7 +96,7 @@ class InputProvider {
         return inputControl.value
     }
 
-    void printResult(result) {
+    void printResult(Collection<ResultObject> result) {
         EventQueue.invokeAndWait(new Runnable() {
             @Override
             void run() {
@@ -98,6 +106,8 @@ class InputProvider {
                     resultList.setBorder(new LineBorder(Color.BLACK))
                     resultContainer.add(resultList)
                     reasonBtn.visible = true
+
+                    new ResultWindow().show(result)
                 } else {
                     JLabel resultLabel = new JLabel()
                     resultLabel.setText(FuzzyRulesApp.instance.getMessage('result.unresolved'))
@@ -114,7 +124,6 @@ class InputProvider {
             void run() {
                 JLabel resultLabel = new JLabel()
                 nextButton.visible = false
-//                unknownBtn.visible = false
                 resultLabel.setText(FuzzyRulesApp.instance.getMessage('result.unresolved'))
                 resultContainer.add(resultLabel)
             }

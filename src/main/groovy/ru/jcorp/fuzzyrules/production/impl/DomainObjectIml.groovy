@@ -150,7 +150,7 @@ class DomainObjectIml extends GroovyObjectSupport implements DomainObject {
 
     @Override
     void printResult() {
-
+        inputProvider.printResult(resultObjects)
     }
 
     @Override

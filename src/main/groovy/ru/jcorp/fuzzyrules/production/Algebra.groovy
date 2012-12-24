@@ -10,6 +10,8 @@ import ru.jcorp.fuzzyrules.types.FuzzyValueSet
 public interface Algebra {
     FuzzyBoolean or(FuzzyBoolean one, FuzzyBoolean two)
 
+    FuzzyBoolean and(FuzzyBoolean one, FuzzyBoolean two)
+
     FuzzyBooleanSet or(FuzzyBooleanSet one, FuzzyBooleanSet two)
 
     FuzzyBooleanSet and(FuzzyBooleanSet one, FuzzyBooleanSet two)

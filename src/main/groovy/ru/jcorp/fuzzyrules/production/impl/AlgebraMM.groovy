@@ -19,9 +19,24 @@ class AlgebraMM implements Algebra {
         } else if (oneValue.value) {
             return new FuzzyBoolean(value: oneValue.value, factor: oneValue.factor)
         } else if (twoValue.value) {
-            return new FuzzyBoolean(value: twoValue.value, factor: twoValue.factor)
+            return new FuzzyBoolean(value: twoValue.value, factor: oneValue.factor)
         } else {
             double factor = Math.min(oneValue.factor, twoValue.factor)
+            return new FuzzyBoolean(value: false, factor: factor)
+        }
+    }
+
+    @Override
+    FuzzyBoolean and(FuzzyBoolean oneValue, FuzzyBoolean twoValue) {
+        if (oneValue.value && twoValue.value) {
+            double factor = Math.min(oneValue.factor, twoValue.factor)
+            return new FuzzyBoolean(value: true, factor: factor)
+        } else if (oneValue.value) {
+            return new FuzzyBoolean(value: oneValue.value, factor: twoValue.factor)
+        } else if (twoValue.value) {
+            return new FuzzyBoolean(value: twoValue.value, factor: oneValue.factor)
+        } else {
+            double factor = Math.max(oneValue.factor, twoValue.factor)
             return new FuzzyBoolean(value: false, factor: factor)
         }
     }
@@ -32,17 +47,7 @@ class AlgebraMM implements Algebra {
 
         for (FuzzyBoolean oneValue : one.values) {
             for (FuzzyBoolean twoValue : two.values) {
-                if (oneValue.value && twoValue.value) {
-                    double factor = Math.max(oneValue.factor, twoValue.factor)
-                    fuzzyBooleans.add(new FuzzyBoolean(value: true, factor: factor))
-                } else if (oneValue.value) {
-                    fuzzyBooleans.add(new FuzzyBoolean(value: oneValue.value, factor: oneValue.factor))
-                } else if (twoValue.value) {
-                    fuzzyBooleans.add(new FuzzyBoolean(value: twoValue.value, factor: twoValue.factor))
-                } else {
-                    double factor = Math.min(oneValue.factor, twoValue.factor)
-                    fuzzyBooleans.add(new FuzzyBoolean(value: false, factor: factor))
-                }
+                fuzzyBooleans.add(or(oneValue, twoValue));
             }
         }
 
@@ -55,17 +60,7 @@ class AlgebraMM implements Algebra {
 
         for (FuzzyBoolean oneValue : one.values) {
             for (FuzzyBoolean twoValue : two.values) {
-                if (oneValue.value && twoValue.value) {
-                    double factor = Math.min(oneValue.factor, twoValue.factor)
-                    fuzzyBooleans.add(new FuzzyBoolean(value: true, factor: factor))
-                } else if (oneValue.value) {
-                    fuzzyBooleans.add(new FuzzyBoolean(value: twoValue.value, factor: twoValue.factor))
-                } else if (twoValue.value) {
-                    fuzzyBooleans.add(new FuzzyBoolean(value: oneValue.value, factor: oneValue.factor))
-                } else {
-                    double factor = Math.max(oneValue.factor, twoValue.factor)
-                    fuzzyBooleans.add(new FuzzyBoolean(value: false, factor: factor))
-                }
+                fuzzyBooleans.add(and(oneValue, twoValue));
             }
         }
 

@@ -44,7 +44,7 @@ class DirectProduction implements ProductionMethod {
                 runCount != ruleSet.size) {
 
             for (Rule rule : ruleSet.rules) {
-                FuzzyBooleanSet conjValue = FuzzyBooleanSet.TRUE
+                FuzzyBooleanSet conjValue = null
                 boolean allValuesResolved = true
 
                 def conjIter = rule.ifStatements.iterator()
@@ -59,9 +59,12 @@ class DirectProduction implements ProductionMethod {
                         break
                     }
 
-                    if (conjResult instanceof FuzzyBooleanSet)
-                        conjValue = Math.algebra.and(conjResult, conjValue)
-                    else if (conjResult != null)
+                    if (conjResult instanceof FuzzyBooleanSet) {
+                        if (conjValue != null)
+                            conjValue = Math.algebra.and(conjResult, conjValue)
+                        else
+                            conjValue = conjResult
+                    } else if (conjResult != null)
                         throw new RuleStatementException(rule.name)
                 }
 
@@ -72,7 +75,7 @@ class DirectProduction implements ProductionMethod {
                     while (iterator.hasNext())
                         resultBoolean = Math.algebra.or(resultBoolean, iterator.next())
 
-                    def resultObject = new ResultObject(resultBoolean)
+                    def resultObject = new ResultObject(resultBoolean, Math.algebra)
 
                     Closure thenClosure = linkClosureToDelegate(rule.thenStatement, resultObject)
                     thenClosure.call()

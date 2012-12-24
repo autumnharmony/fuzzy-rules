@@ -94,7 +94,7 @@ class DateInputControl implements InputControl<FuzzyValueSet> {
             if (ca + cb > 100)
                 throw new ValidationException()
 
-            value = new FuzzyValueSet(new FuzzyValue(a, ca), new FuzzyValue(b, cb))
+            value = new FuzzyValueSet(new FuzzyValue(a, ca / 100.0), new FuzzyValue(b, cb / 100.0))
         } catch (Exception ignored) {
             throw new ValidationException()
         }
