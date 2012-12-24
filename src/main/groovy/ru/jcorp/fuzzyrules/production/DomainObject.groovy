@@ -18,6 +18,7 @@
 package ru.jcorp.fuzzyrules.production
 
 import ru.jcorp.fuzzyrules.model.Rule
+import ru.jcorp.fuzzyrules.production.impl.ResultObject
 
 /**
  * @author artamonov
@@ -26,11 +27,9 @@ interface DomainObject {
 
     boolean isResolved()
 
-    void setReason(String reason)
-
-    String getReason()
-
-    void addActivatedRule(Rule rule)
+    void addActivatedRule(Rule rule, ResultObject resultObject)
 
     Set<Rule> getActivatedRules()
+
+    void printResult()
 }

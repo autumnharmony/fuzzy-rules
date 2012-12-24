@@ -17,9 +17,26 @@
 
 package ru.jcorp.fuzzyrules.types
 
+import java.text.DecimalFormat
+
 /**
  * @author artamonov
  */
+@SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
 class FuzzyBoolean {
+    boolean value
+    double factor
 
+    boolean isActive() {
+        return value && factor > 0.20
+    }
+
+    static FuzzyBoolean TRUE = new FuzzyBoolean(value: true, factor: 1.0)
+
+    static FuzzyBoolean FALSE = new FuzzyBoolean(value: true, factor: 0.0)
+
+    @Override
+    String toString() {
+        return Boolean.toString(value) + ' : ' + new DecimalFormat('#,##0').format(factor * 100.0)
+    }
 }

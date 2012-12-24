@@ -17,11 +17,33 @@
 
 package ru.jcorp.fuzzyrules.gui
 
+import org.apache.commons.lang.StringUtils
 import ru.jcorp.fuzzyrules.FuzzyRulesApp
+import ru.jcorp.fuzzyrules.gui.controls.InputProvider
 import ru.jcorp.fuzzyrules.model.RuleSet
+import ru.jcorp.fuzzyrules.production.Algebra
+import ru.jcorp.fuzzyrules.production.DomainObject
+import ru.jcorp.fuzzyrules.production.Executor
+import ru.jcorp.fuzzyrules.production.ProductionMethod
+import ru.jcorp.fuzzyrules.production.impl.AlgebraBB
+import ru.jcorp.fuzzyrules.production.impl.AlgebraMM
+import ru.jcorp.fuzzyrules.production.impl.DirectProduction
+import ru.jcorp.fuzzyrules.production.impl.DomainObjectIml
+import ru.jcorp.fuzzyrules.util.DslSupport
 
+import javax.swing.AbstractAction
+import javax.swing.BoxLayout
+import javax.swing.JButton
 import javax.swing.JFrame
+import javax.swing.JOptionPane
+import javax.swing.JPanel
+import javax.swing.JScrollPane
 import javax.swing.JTabbedPane
+import javax.swing.JTextArea
+import javax.swing.border.EmptyBorder
+import java.awt.event.ActionEvent
+
+import static javax.swing.JOptionPane.*
 
 /**
  * @author artamonov
@@ -31,10 +53,15 @@ class MainWindow extends JFrame {
     private FuzzyRulesApp app
     private JTabbedPane tabbedPane
 
-//    private Map<Long, Executor> executorMap = new WeakHashMap<Long, Executor>()
+    private Map<Long, Executor> executorMap = new WeakHashMap<Long, Executor>()
 
     private RuleSet ruleSet
     private ApplicationMode mode
+
+    private File rulesFile
+
+    private JPanel editPanel
+    private JTextArea editor
 
     MainWindow(ApplicationMode mode) {
         this.app = FuzzyRulesApp.instance
@@ -55,7 +82,17 @@ class MainWindow extends JFrame {
         buildMenu()
         buildContentPane()
 
-//        ruleSet = RuleSet.build DslSupport.loadClosureFromResource('/rules/set.groovy')
+        rulesFile = new File('rules.groovy')
+        if (!rulesFile.exists()) {
+            rulesFile.withDataOutputStream {
+                dos ->
+                    dos.write(DslSupport.getResourceAsString('/rules/set.groovy').getBytes('UTF-8'))
+                    dos.close()
+            }
+            ruleSet = RuleSet.build DslSupport.loadClosureFromResource('/rules/set.groovy')
+        } else {
+            ruleSet = RuleSet.build DslSupport.loadClosureFromStream(new FileInputStream(rulesFile))
+        }
     }
 
     def buildMenu() {
@@ -97,109 +134,135 @@ class MainWindow extends JFrame {
     }
 
     def newConsultation() {
-//        final Long execNumber = new Date().time
-//
-//        JPanel dialogPane = null
-//        JButton nextBtn = null
-//        JButton unknownBtn = null
-//        JButton reasonBtn = null
-//        JPanel resultContainer = null
-//        def consultationPanel = app.guiBuilder.panel(border: new EmptyBorder(3, 5, 3, 5)) {
-//            borderLayout()
-//
-//            hbox(constraints: PAGE_START) {
-//                hglue()
-//                dialogPane = panel {
-//                    gridLayout(columns: 2, rows: -1)
-//                }
-//                hglue()
-//            }
-//
-//            hbox(constraints: CENTER) {
-//                hglue()
-//                resultContainer = panel() {
-//                    boxLayout(axis: BoxLayout.Y_AXIS)
-//                }
-//                hglue()
-//            }
-//
-//            hbox(constraints: PAGE_END) {
-//                nextBtn = button(text: app.getMessage('edit.next'))
-//                unknownBtn = button(text: app.getMessage('edit.unknown'))
-//                reasonBtn = button(text: app.getMessage('edit.reason'), visible: false)
-//
-//                hglue()
-//
-//                button(text: app.getMessage('edit.finish'), actionPerformed: {
-//                    executorMap.get(execNumber)?.cancel()
-//                    // stop consulation
-//                    tabbedPane.remove(tabbedPane.selectedComponent)
-//                })
-//            }
-//        }
-//        InputProvider inputProvider = new InputProvider(dialogPane, nextBtn, unknownBtn, reasonBtn, resultContainer)
-//
-//        def options = [app.getMessage('production.direct'), app.getMessage('production.inverted')]
-//        def option = JOptionPane.showOptionDialog(this,
-//                app.getMessage('edit.selectProduction'),
-//                app.getMessage('edit.options'), JOptionPane.DEFAULT_OPTION,
-//                JOptionPane.INFORMATION_MESSAGE, null,
-//                options.toArray(), '')
-//
-//        ProductionMethod method
-//        DomainObject domainObject
-//
-//        if (option == 0) {
-//            domainObject = new DirectDomainObject(inputProvider)
-//            method = new DirectProduction(domainObject)
-//        } else {
-//            Stack<String> vars = new Stack<String>()
-//            domainObject = new InvertedDomainObject(inputProvider, vars)
-//            method = new InvertedProduction(domainObject, vars)
-//        }
-//
-//        reasonBtn.setAction(new AbstractAction(reasonBtn.text) {
-//            @Override
-//            void actionPerformed(ActionEvent e) {
-//                String message = domainObject.reason
-//                String rules = StringUtils.join(domainObject.activatedRules.iterator(), ',')
-//
-//                if (StringUtils.isNotEmpty(rules)) {
-//                    message += '\n\n' + app.getMessage('edit.rules') + ' ' + rules
-//                }
-//
-//                JOptionPane.showMessageDialog(MainWindow.this, message,
-//                        app.getMessage('edit.reason'), JOptionPane.INFORMATION_MESSAGE)
-//            }
-//        })
-//
-//        Executor executor = new Executor(method, inputProvider, ruleSet)
-//        executor.performProduction()
-//
-//        executorMap.put(execNumber, executor)
-//
-//        tabbedPane.add(
-//                String.format(app.getMessage('consultation.title'), tabbedPane.tabCount + 1, options.get(option))
-//                , consultationPanel)
-//        tabbedPane.selectedComponent = consultationPanel
+        final Long execNumber = new Date().time
+
+        JPanel dialogPane = null
+        JButton nextBtn = null
+        JButton reasonBtn = null
+        JPanel resultContainer = null
+        def consultationPanel = app.guiBuilder.panel(border: new EmptyBorder(3, 5, 3, 5)) {
+            borderLayout()
+
+            hbox(constraints: PAGE_START) {
+                hglue()
+                resultContainer = panel() {
+                    boxLayout(axis: BoxLayout.Y_AXIS)
+                }
+                hglue()
+            }
+
+            scrollPane(constraints: CENTER, border: new EmptyBorder(2, 2, 2, 2), verticalScrollBarPolicy: JScrollPane.VERTICAL_SCROLLBAR_ALWAYS) {
+                panel {
+                    dialogPane = panel() {
+                        gridLayout(columns: 2, rows: -1)
+                    }
+                }
+            }
+
+            hbox(constraints: PAGE_END) {
+                nextBtn = button(text: app.getMessage('edit.next'))
+                reasonBtn = button(text: app.getMessage('edit.reason'), visible: false)
+
+                hglue()
+
+                button(text: app.getMessage('edit.finish'), actionPerformed: {
+                    executorMap.get(execNumber)?.cancel()
+                    // stop consulation
+                    tabbedPane.remove(tabbedPane.selectedComponent)
+                })
+            }
+        }
+        InputProvider inputProvider = new InputProvider(dialogPane, nextBtn, reasonBtn, resultContainer)
+
+        def options = [app.getMessage('algebra.mm'), app.getMessage('algebra.bb')]
+        def option = showOptionDialog(this,
+                app.getMessage('edit.selectAlgebra'),
+                app.getMessage('edit.options'), DEFAULT_OPTION,
+                INFORMATION_MESSAGE, null,
+                options.toArray(), '')
+
+        DomainObject domainObject = new DomainObjectIml(inputProvider)
+        ProductionMethod method = new DirectProduction(domainObject)
+
+        Algebra algebra
+        if (option == 0) {
+            algebra = new AlgebraMM()
+        } else if (option == 1) {
+            algebra = new AlgebraBB()
+        } else {
+            return
+        }
+
+        reasonBtn.setAction(new AbstractAction(reasonBtn.text) {
+            @Override
+            void actionPerformed(ActionEvent e) {
+                String message = ''
+                String rules = StringUtils.join(domainObject.activatedRules.iterator(), ',')
+
+                if (StringUtils.isNotEmpty(rules)) {
+                    message += '\n\n' + app.getMessage('edit.rules') + ' ' + rules
+                }
+
+                JOptionPane.showMessageDialog(MainWindow.this, message,
+                        app.getMessage('edit.reason'), JOptionPane.INFORMATION_MESSAGE)
+            }
+        })
+
+        Executor executor = new Executor(method, inputProvider, algebra, ruleSet)
+        executor.performProduction()
+
+        executorMap.put(execNumber, executor)
+
+        def consultationTitle = String.format(app.getMessage('consultation.title'), tabbedPane.tabCount + 1, options.get(option))
+        tabbedPane.add(consultationTitle, consultationPanel)
+        tabbedPane.selectedComponent = consultationPanel
     }
 
     def editRules() {
+        if (editPanel == null) {
+            editPanel = app.guiBuilder.panel(border: new EmptyBorder(3, 5, 3, 5)) {
+                borderLayout()
 
+                hbox(constraints: CENTER) {
+                    scrollPane(border: new EmptyBorder(2, 2, 2, 2)) {
+                        editor = textArea(text: DslSupport.getResourceAsString(new FileInputStream(rulesFile)))
+                    }
+                }
+
+                hbox(constraints: PAGE_END) {
+                    button(text: app.getMessage('edit.save'), actionPerformed: {
+                        try {
+                            def testCode = new ByteArrayInputStream(editor.text.getBytes('UTF-8'))
+                            RuleSet.build DslSupport.loadClosureFromStream(testCode)
+                        } catch (Exception ignored) {
+                            JOptionPane.showMessageDialog(this,
+                                    app.getMessage('application.parseError'),
+                                    app.getMessage('application.error'),
+                                    JOptionPane.WARNING_MESSAGE)
+                            return
+                        }
+
+                        rulesFile.withDataOutputStream {
+                            dos ->
+                                dos.write(editor.text.getBytes('UTF-8'))
+                                dos.close()
+                        }
+                        ruleSet = RuleSet.build DslSupport.loadClosureFromStream(new FileInputStream(rulesFile))
+                        tabbedPane.remove(editPanel)
+                        editPanel = null
+                        editor = null
+                    })
+                    button(text: app.getMessage('edit.cancel'), actionPerformed: {
+                        tabbedPane.remove(editPanel)
+                        editPanel = null
+                        editor = null
+                    })
+                    hglue()
+                }
+            }
+
+            tabbedPane.add(app.getMessage('edit.base'), editPanel)
+        }
+        tabbedPane.selectedComponent = editPanel
     }
-
-//    def selectRules() {
-//        JFileChooser fileChooser = new JFileChooser()
-//        fileChooser.fileFilter = new FileNameExtensionFilter(app.getMessage('edit.ruleFiles'), 'groovy')
-//        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-//            FileInputStream fs = new FileInputStream(fileChooser.selectedFile)
-//            try {
-//                RuleSet newRuleSet = RuleSet.build DslSupport.loadClosureFromStream(fs)
-//                ruleSet = newRuleSet
-//                JOptionPane.showMessageDialog(this, app.getMessage('edit.successLoad'), app.getMessage('edit.success'), JOptionPane.INFORMATION_MESSAGE)
-//            } catch (Exception ignored) {
-//                JOptionPane.showMessageDialog(this, app.getMessage('edit.rulesError'), app.getMessage('edit.error'), JOptionPane.ERROR_MESSAGE)
-//            }
-//        }
-//    }
 }

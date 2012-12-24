@@ -21,7 +21,14 @@ package ru.jcorp.fuzzyrules.types
  * @author artamonov
  */
 class FuzzyValue {
+    double value
+    double factor
 
-    Double a
-    Double b
+    FuzzyValue() {
+    }
+
+    FuzzyValue(double value, double factor) {
+        this.value = value
+        this.factor = factor
+    }
 }

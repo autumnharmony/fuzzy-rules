@@ -22,8 +22,8 @@ import static ru.jcorp.fuzzyrules.util.DslSupport.linkClosureToDelegate
 /**
  * @author artamonov
  */
+@SuppressWarnings("GroovyUnusedDeclaration")
 class Rule {
-
     private List<Closure> ifStatements = new ArrayList<Closure>()
 
     private Closure thenStatement = null
@@ -65,15 +65,11 @@ class Rule {
         return name
     }
 
-    List<String> getVariables(Closure closure) {
+    static List<String> getVariables(Closure closure) {
         DelegateStub ds = new DelegateStub()
         linkClosureToDelegate(closure, ds)
         closure.call()
         return ds.getInspectedVariables()
-    }
-
-    List<String> getTargetVariables() {
-        return getVariables(this.thenStatement)
     }
 
     @Override

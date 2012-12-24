@@ -38,15 +38,27 @@ class DslSupport {
         return loadClosureFromStream(DslSupport.class.getResourceAsStream(resource))
     }
 
-    static Closure loadClosureFromStream(InputStream closureStream) {
-        GroovyShell sh = new GroovyShell()
-        BufferedReader reader = new BufferedReader(new InputStreamReader(closureStream, 'UTF-8'))
+    static String getResourceAsString(String resource) {
+        return getResourceAsString(DslSupport.class.getResourceAsStream(resource))
+    }
+
+    static String getResourceAsString(InputStream stream) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, 'UTF-8'))
         StringBuilder builder = new StringBuilder()
 
-        builder.append('{it->')
         String line
         while ((line = reader.readLine()) != null)
             builder.append(line).append("\n")
+
+        return builder.toString()
+    }
+
+    static Closure loadClosureFromStream(InputStream closureStream) {
+        GroovyShell sh = new GroovyShell()
+
+        StringBuilder builder = new StringBuilder()
+        builder.append('{it->')
+        builder.append(getResourceAsString(closureStream))
         builder.append('\n}')
 
         String script = builder.toString()

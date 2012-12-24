@@ -20,6 +20,8 @@ package ru.jcorp.fuzzyrules.production.impl
 import ru.jcorp.fuzzyrules.exceptions.*
 import ru.jcorp.fuzzyrules.model.*
 import ru.jcorp.fuzzyrules.production.*
+import ru.jcorp.fuzzyrules.types.FuzzyBoolean
+import ru.jcorp.fuzzyrules.types.FuzzyBooleanSet
 
 import static ru.jcorp.fuzzyrules.util.DslSupport.linkClosureToDelegate
 
@@ -38,15 +40,15 @@ class DirectProduction implements ProductionMethod {
     void perform(RuleSet ruleSet) {
         int runCount = 0
 
-        while (!domainObject.resolved &&
+        while (!domainObject.isResolved() &&
                 runCount != ruleSet.size) {
 
             for (Rule rule : ruleSet.rules) {
-                boolean conjValue = true
+                FuzzyBooleanSet conjValue = FuzzyBooleanSet.TRUE
                 boolean allValuesResolved = true
 
                 def conjIter = rule.ifStatements.iterator()
-                while (conjValue && conjIter.hasNext()) {
+                while (conjIter.hasNext()) {
                     Closure conj = linkClosureToDelegate(conjIter.next(), domainObject)
 
                     def conjResult
@@ -56,29 +58,34 @@ class DirectProduction implements ProductionMethod {
                         allValuesResolved = false
                         break
                     }
-                    // todo Fuzzy &&
-                    if (conjResult instanceof Boolean)
-                        conjValue = conjResult
+
+                    if (conjResult instanceof FuzzyBooleanSet)
+                        conjValue = Math.algebra.and(conjResult, conjValue)
                     else if (conjResult != null)
                         throw new RuleStatementException(rule.name)
                 }
 
-                if (allValuesResolved && conjValue) {
-                    Closure thenClosure = linkClosureToDelegate(rule.thenStatement, domainObject)
+                FuzzyBooleanSet activated = conjValue.getActivated()
+                if (allValuesResolved && !activated.isEmpty()) {
+                    def iterator = activated.values.iterator()
+                    FuzzyBoolean resultBoolean = iterator.next()
+                    while (iterator.hasNext())
+                        resultBoolean = Math.algebra.or(resultBoolean, iterator.next())
+
+                    def resultObject = new ResultObject(resultBoolean)
+
+                    Closure thenClosure = linkClosureToDelegate(rule.thenStatement, resultObject)
                     thenClosure.call()
 
-                    domainObject.addActivatedRule(rule)
-
-                    if (domainObject.resolved) {
-                        domainObject.reason = rule.reason
-                        break
-                    }
+                    domainObject.addActivatedRule(rule, resultObject)
                 }
             }
             runCount++
         }
 
-        if (!domainObject.resolved)
+        if (!domainObject.isResolved())
             throw new UnresolvedRuleSystemException()
+        else
+            domainObject.printResult()
     }
 }

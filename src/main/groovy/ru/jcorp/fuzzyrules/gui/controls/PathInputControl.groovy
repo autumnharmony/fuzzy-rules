@@ -19,7 +19,11 @@ package ru.jcorp.fuzzyrules.gui.controls
 
 import ru.jcorp.fuzzyrules.FuzzyRulesApp
 import ru.jcorp.fuzzyrules.exceptions.ValidationException
+import ru.jcorp.fuzzyrules.types.FuzzyValue
+import ru.jcorp.fuzzyrules.types.FuzzyValueSet
 
+import java.awt.Dimension
+import java.awt.GridLayout
 import java.awt.event.ActionEvent
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -28,17 +32,22 @@ import javax.swing.*
 /**
  * @author artamonov
  */
-class NumberInputControl implements InputControl<Double> {
+class PathInputControl implements InputControl<FuzzyValueSet> {
 
     private FuzzyRulesApp app
 
-    private JTextField component
+    private JTextField valueOne
+    private JTextField valueTwo
+    private JTextField cfOne
+    private JTextField cfTwo
 
     private Action nextAction
 
-    private volatile Double value = null
+    private volatile FuzzyValueSet value = null
 
-    NumberInputControl() {
+    private JPanel component
+
+    PathInputControl() {
         this.app = FuzzyRulesApp.instance
 
         this.nextAction = new AbstractAction() {
@@ -52,43 +61,46 @@ class NumberInputControl implements InputControl<Double> {
             }
         }
 
-        component = app.guiBuilder.textField(text: '0',
+        component = new JPanel()
+        component.setLayout(new GridLayout(2, 2))
+
+        valueOne = app.guiBuilder.textField(text: '0',
                 size: [150, -1], minimumSize: [150, -1], preferredSize: [150, -1])
-        component.addKeyListener(new KeyAdapter() {
-            @Override
-            void keyPressed(KeyEvent e) {
-                if (e.keyCode == KeyEvent.VK_ENTER) {
-                    try {
-                        apply()
-                    } catch (ValidationException ignored) {
-                        def app = DynamicRulesApp.instance
-                        JOptionPane.showMessageDialog(component,
-                                app.getMessage('edit.validation'),
-                                app.getMessage('edit.warning'),
-                                JOptionPane.WARNING_MESSAGE)
-                        return
-                    }
+        valueTwo = app.guiBuilder.textField(text: '0',
+                size: [150, -1], minimumSize: [150, -1], preferredSize: [150, -1])
+        cfOne = app.guiBuilder.textField(text: '50',
+                size: [150, -1], minimumSize: [150, -1], preferredSize: [150, -1])
+        cfTwo = app.guiBuilder.textField(text: '50',
+                size: [150, -1], minimumSize: [150, -1], preferredSize: [150, -1])
 
-                    component.enabled = false
+        component.add(valueOne)
+        component.add(cfOne)
+        component.add(valueTwo)
+        component.add(cfTwo)
 
-                    synchronized (NumberInputControl.this) {
-                        NumberInputControl.this.notifyAll()
-                    }
-                }
-            }
-        })
+        component.setMaximumSize(new Dimension(300, 70))
+        component.setPreferredSize(new Dimension(-1, 70))
+        component.setMinimumSize(new Dimension(300, 70))
     }
 
     def apply() {
         try {
-            value = Double.parseDouble(component.text)
+            double a = Double.parseDouble(valueOne.text)
+            double b = Double.parseDouble(valueTwo.text)
+            int ca = Integer.parseInt(cfOne.text)
+            int cb = Integer.parseInt(cfTwo.text)
+
+            if (ca + cb > 100)
+                throw new ValidationException()
+
+            value = new FuzzyValueSet(new FuzzyValue(a, ca), new FuzzyValue(b, cb))
         } catch (NumberFormatException ignored) {
             throw new ValidationException()
         }
     }
 
     @Override
-    def Double getValue() {
+    def FuzzyValueSet getValue() {
         return value
     }
 
@@ -104,6 +116,9 @@ class NumberInputControl implements InputControl<Double> {
 
     @Override
     void clear() {
-        component.text = ''
+        valueOne.text = ''
+        valueTwo.text = ''
+        cfOne.text = ''
+        cfTwo.text = ''
     }
 }

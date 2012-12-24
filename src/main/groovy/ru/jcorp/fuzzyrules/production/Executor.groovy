@@ -19,6 +19,7 @@ package ru.jcorp.fuzzyrules.production
 
 import ru.jcorp.fuzzyrules.exceptions.UnresolvedRuleSystemException
 import ru.jcorp.fuzzyrules.gui.controls.InputProvider
+import ru.jcorp.fuzzyrules.model.Math
 import ru.jcorp.fuzzyrules.model.RuleSet
 
 /**
@@ -29,20 +30,23 @@ class Executor {
     private ProductionMethod productionMethod
     private RuleSet ruleSet
     private InputProvider inputProvider
+    private volatile Algebra algebra
 
     private Thread executorThread
 
-    Executor(ProductionMethod productionMethod, InputProvider inputProvider, RuleSet ruleSet) {
+    Executor(ProductionMethod productionMethod, InputProvider inputProvider, Algebra algebra, RuleSet ruleSet) {
         this.productionMethod = productionMethod
         this.ruleSet = ruleSet
         this.inputProvider = inputProvider
+        this.algebra = algebra
     }
 
     void performProduction() {
         executorThread = new Thread(new Runnable() {
-
             @Override
             void run() {
+                Math.setAlgebra(algebra)
+
                 try {
                     productionMethod.perform(ruleSet)
                 } catch (UnresolvedRuleSystemException ignored) {

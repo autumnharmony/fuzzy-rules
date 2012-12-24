@@ -120,11 +120,11 @@ class FuzzyRulesApp {
         return builder.toString()
     }
 
-    ImageIcon getResourceIcon(String name) {
+    static ImageIcon getResourceIcon(String name) {
         return new ImageIcon(FuzzyRulesApp.class.getResource('/icons/' + name))
     }
 
-    Image getResourceImage(String name) {
+    static Image getResourceImage(String name) {
         return getResourceIcon(name).getImage()
     }
 }

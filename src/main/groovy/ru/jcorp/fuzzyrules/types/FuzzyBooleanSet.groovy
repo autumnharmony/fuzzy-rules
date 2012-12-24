@@ -1,0 +1,37 @@
+package ru.jcorp.fuzzyrules.types
+
+/**
+ * @author artamonov
+ */
+class FuzzyBooleanSet {
+    private Set<FuzzyBoolean> values = new HashSet<>()
+
+    FuzzyBooleanSet(Set<FuzzyBoolean> values) {
+        this.values = values
+    }
+
+    FuzzyBooleanSet(FuzzyBoolean fuzzyBoolean) {
+        this.values.add(fuzzyBoolean)
+    }
+
+    Set<FuzzyBoolean> getValues() {
+        return values
+    }
+
+    boolean isEmpty() {
+        return values.isEmpty()
+    }
+
+    static FuzzyBooleanSet TRUE = new FuzzyBooleanSet(Collections.<FuzzyBoolean> singleton(new FuzzyBoolean(value: true, factor: 1.0)))
+
+    FuzzyBooleanSet getActivated() {
+        Set<FuzzyBoolean> values = new HashSet<>()
+
+        for (FuzzyBoolean value : this.values) {
+            if (value.isActive())
+                values.add(value)
+        }
+
+        return new FuzzyBooleanSet(values)
+    }
+}

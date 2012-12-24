@@ -40,14 +40,12 @@ class InputProvider {
     private JPanel dialogPane
     private JButton nextButton
     private JButton reasonBtn
-    private JButton unknownBtn
     private JPanel resultContainer
 
-    InputProvider(JPanel dialogPane, JButton nextButton, JButton unknownBtn, JButton reasonBtn, JPanel resultContainer) {
+    InputProvider(JPanel dialogPane, JButton nextButton, JButton reasonBtn, JPanel resultContainer) {
         this.dialogPane = dialogPane
         this.nextButton = nextButton
         this.reasonBtn = reasonBtn
-        this.unknownBtn = unknownBtn
         this.resultContainer = resultContainer
     }
 
@@ -79,21 +77,7 @@ class InputProvider {
                         }
                     }
                 })
-                unknownBtn.setAction(new AbstractAction(unknownBtn.text) {
 
-                    @Override
-                    void actionPerformed(ActionEvent e) {
-                        inputControl.clear()
-                        inputControl.component.enabled = false
-
-                        synchronized (inputControl) {
-                            inputControl.notifyAll()
-                        }
-                    }
-                })
-
-                inputControl.component.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30))
-                inputControl.component.setPreferredSize(new Dimension(-1, 30))
                 inputControl.component.requestFocus()
             }
         })
@@ -109,7 +93,6 @@ class InputProvider {
             @Override
             void run() {
                 nextButton.visible = false
-                unknownBtn.visible = false
                 if (result != null) {
                     JList resultList = new JList((result as Collection).toArray())
                     resultList.setBorder(new LineBorder(Color.BLACK))
@@ -131,7 +114,7 @@ class InputProvider {
             void run() {
                 JLabel resultLabel = new JLabel()
                 nextButton.visible = false
-                unknownBtn.visible = false
+//                unknownBtn.visible = false
                 resultLabel.setText(FuzzyRulesApp.instance.getMessage('result.unresolved'))
                 resultContainer.add(resultLabel)
             }

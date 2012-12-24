@@ -47,6 +47,7 @@ class LoginWindow extends JDialog {
         this.locationRelativeTo = null
         this.resizable = false
         this.defaultCloseOperation = HIDE_ON_CLOSE
+        this.alwaysOnTop = true
 
         buildContentPane()
     }
@@ -66,8 +67,7 @@ class LoginWindow extends JDialog {
             }
             hbox(border: new EmptyBorder(3, 5, 3, 5)) {
                 hglue()
-                okBtn = button(text: app.getMessage('edit.ok'),
-                        actionPerformed: { this.close() })
+                okBtn = button(text: app.getMessage('edit.ok'), actionPerformed: { this.close() })
                 hglue()
             }
         }
