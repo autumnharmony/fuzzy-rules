@@ -79,6 +79,7 @@ class InputProvider {
                         }
 
                         inputControl.component.enabled = false
+                        inputControl.lock()
 
                         synchronized (inputControl) {
                             inputControl.notifyAll()

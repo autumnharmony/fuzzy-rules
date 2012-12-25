@@ -121,4 +121,12 @@ class PathInputControl implements InputControl<FuzzyValueSet> {
         cfOne.text = ''
         cfTwo.text = ''
     }
+
+    @Override
+    void lock() {
+        valueOne.editable = false
+        valueTwo.editable = false
+        cfTwo.editable = false
+        cfOne.editable = false
+    }
 }

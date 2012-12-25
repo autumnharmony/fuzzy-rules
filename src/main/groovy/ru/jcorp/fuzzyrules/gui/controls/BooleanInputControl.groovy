@@ -73,4 +73,9 @@ class BooleanInputControl implements InputControl<FuzzyBooleanSet> {
     void clear() {
 
     }
+
+    @Override
+    void lock() {
+        checkBox.enabled = false
+    }
 }
