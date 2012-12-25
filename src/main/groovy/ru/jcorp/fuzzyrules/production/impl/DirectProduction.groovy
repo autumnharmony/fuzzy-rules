@@ -68,7 +68,7 @@ class DirectProduction implements ProductionMethod {
                         throw new RuleStatementException(rule.name)
                 }
 
-                FuzzyBooleanSet activated = conjValue.getActivated()
+                FuzzyBooleanSet activated = conjValue.getActivated(ruleSet.getActivation())
                 if (allValuesResolved && !activated.isEmpty()) {
                     def iterator = activated.values.iterator()
                     FuzzyBoolean resultBoolean = iterator.next()

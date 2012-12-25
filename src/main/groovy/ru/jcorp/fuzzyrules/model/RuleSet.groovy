@@ -22,9 +22,12 @@ import ru.jcorp.fuzzyrules.util.DslSupport
 /**
  * @author artamonov
  */
+@SuppressWarnings("GroovyUnusedDeclaration")
 class RuleSet {
 
     private List<Rule> rules = new ArrayList<Rule>()
+
+    private double activation
 
     List<Rule> getRules() {
         return rules
@@ -34,6 +37,10 @@ class RuleSet {
         return rules.size()
     }
 
+    void activation(Integer a) {
+        this.activation = a / 100.0
+    }
+
     void rule(String name, Closure definition) {
         def rule = DslSupport.build(definition, new Rule(name))
         rules.add(rule)
@@ -41,5 +48,9 @@ class RuleSet {
 
     static RuleSet build(Closure setDefinition) {
         DslSupport.build(setDefinition, new RuleSet())
+    }
+
+    double getActivation() {
+        return activation
     }
 }

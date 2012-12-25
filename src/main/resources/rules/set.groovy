@@ -1,3 +1,4 @@
+activation(20)
 rule('1') {
     _if_ = [{P.greaterThan fuzzySet(fuzzy(25, 50), fuzzy(30, 50))}, {CO}]
     _then_ = {

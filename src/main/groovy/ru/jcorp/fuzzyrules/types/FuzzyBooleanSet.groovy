@@ -22,13 +22,11 @@ class FuzzyBooleanSet {
         return values.isEmpty()
     }
 
-    static FuzzyBooleanSet TRUE = new FuzzyBooleanSet(Collections.<FuzzyBoolean> singleton(new FuzzyBoolean(value: true, factor: 1.0)))
-
-    FuzzyBooleanSet getActivated() {
+    FuzzyBooleanSet getActivated(double activation) {
         Set<FuzzyBoolean> values = new HashSet<>()
 
         for (FuzzyBoolean value : this.values) {
-            if (value.isActive())
+            if (value.isActive(activation))
                 values.add(value)
         }
 

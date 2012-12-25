@@ -27,8 +27,8 @@ class FuzzyBoolean {
     boolean value
     double factor
 
-    boolean isActive() {
-        return value && factor > 0.20
+    boolean isActive(double activation) {
+        return value && factor > activation
     }
 
     static FuzzyBoolean TRUE = new FuzzyBoolean(value: true, factor: 1.0)
